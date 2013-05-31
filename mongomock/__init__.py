@@ -280,7 +280,7 @@ class Collection(object):
 
     def count(self):
         return len(self._documents)
-    def ensure_index(key_or_list, cache_for=300, **kwargs):
+    def ensure_index(self, key_or_list, cache_for=300, **kwargs):
         pass  # TODO: Actually mock out unique indexes
 
 
