@@ -186,7 +186,8 @@ class Collection(object):
                 document.update(spec)
             self.insert(document)
 
-    def find(self, spec = None, fields = None, filter = None, sort = None, timeout = True):
+    def find(self, spec = None, fields = None, filter = None, sort = None, timeout = True, limit = None):
+        #TODO: implement limit
         if filter is not None:
             _print_deprecation_warning('filter', 'spec')
             if spec is None:
@@ -303,9 +304,15 @@ class Cursor(object):
             self._limit -= 1
         return next(self._dataset)
     next = __next__
-    def sort(self, key, order):
+    def sort(self, key_or_list, direction=1):
+        if isinstance(key_or_list, list):
+            if len(key_or_list) != 1:
+                raise NotImplementedError("Cursor#sort(key_or_list) only supports one-item list")
+            key, direction = key_or_list[0]
+        else:
+            key = key_or_list
         arr = [x for x in self._dataset]
-        arr = sorted(arr, key = lambda x:x[key], reverse = order < 0)
+        arr = sorted(arr, key = lambda x:x[key], reverse = direction < 0)
         self._dataset = iter(arr)
         return self
     def count(self):
