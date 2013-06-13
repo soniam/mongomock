@@ -274,6 +274,22 @@ class SortSkipLimitTest(CollectionComparisonTest):
     def test__skip_and_limit(self):
         self.cmp.compare(_SORT("index", 1), _SKIP(10), _LIMIT(10)).find()
 
+def _DISTINCT(*args):
+    return lambda cursor: cursor.distinct(*args)
+
+def _SORT_LIST():
+    return lambda l: sorted(l)
+
+class DistinctTest(CollectionComparisonTest):
+    def setUp(self):
+        super(DistinctTest, self).setUp()
+        self.cmp.do.insert([{'key1': 'a', 'key2': i} for i in range(42)])
+        self.cmp.do.insert([{'key1': 'm', 'key2': i} for i in range(100)])
+    def test__distinct(self):
+        self.cmp.compare(_DISTINCT('key1'), _SORT_LIST()).find()
+        self.cmp.compare(_DISTINCT('key2'), _SORT_LIST()).find()
+        self.cmp.compare(_DISTINCT('key2'), _SORT_LIST()).find({'key1': {'$gte': 'a', '$lt': 'b'}})
+
 class InsertedDocumentTest(TestCase):
     def setUp(self):
         super(InsertedDocumentTest, self).setUp()

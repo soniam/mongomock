@@ -328,3 +328,8 @@ class Cursor(object):
         return self
     def batch_size(self, count):
         return self
+    def distinct(self, key):
+        keys = set()
+        for x in self._dataset:
+            keys.add(x[key])
+        return list(keys)
