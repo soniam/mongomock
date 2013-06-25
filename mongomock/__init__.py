@@ -117,7 +117,7 @@ class Collection(object):
     def __init__(self, db):
         super(Collection, self).__init__()
         self._documents = {}
-    def insert(self, data):
+    def insert(self, data, w='ignored'):
         if isinstance(data, list):
             return [self._insert(element) for element in data]
         return self._insert(data)
