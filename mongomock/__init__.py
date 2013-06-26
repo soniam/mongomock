@@ -247,7 +247,7 @@ class Collection(object):
                 is_match = search.match(doc_val) is not None
             elif key in LOGICAL_OPERATOR_MAP:
                 is_match = LOGICAL_OPERATOR_MAP[key] (self, document, search)
-            elif isinstance(doc_val, Iterable):
+            elif isinstance(doc_val, Iterable) and not isinstance(search, Iterable):
                 is_match = search in doc_val
             else:
                 is_match = doc_val == search

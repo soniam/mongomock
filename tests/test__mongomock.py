@@ -169,6 +169,17 @@ class CollectionTest(CollectionComparisonTest):
         self.cmp.compare_ignore_order.find({'sqrd':{'$gte':64}})
         self.cmp.compare_ignore_order.find({'sqrd':{'$gte':25, '$lte':36}})
 
+    def test__find_string(self):
+        self.cmp.do.insert(dict(name = "hello"))
+        self.cmp.compare_ignore_order.find({'name' : "hello"})
+        self.cmp.compare_ignore_order.find({'name' : "hell"})
+    
+    def test__find_iterable(self):
+        self.cmp.do.insert(dict(names = ["hello", "world"]))
+        self.cmp.compare_ignore_order.find({'name' : ["hello", "world"]})
+        self.cmp.compare_ignore_order.find({'name' : ["hello"]})
+        self.cmp.compare_ignore_order.find({'name' : "hello"})        
+
     def test__find_sets(self):
         single = 4
         even = [2, 4, 6, 8]
