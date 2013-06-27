@@ -176,9 +176,12 @@ class CollectionTest(CollectionComparisonTest):
     
     def test__find_iterable(self):
         self.cmp.do.insert(dict(names = ["hello", "world"]))
-        self.cmp.compare_ignore_order.find({'name' : ["hello", "world"]})
-        self.cmp.compare_ignore_order.find({'name' : ["hello"]})
-        self.cmp.compare_ignore_order.find({'name' : "hello"})        
+        self.cmp.compare_ignore_order.find({'names' : "hello"})
+        self.cmp.compare_ignore_order.find({'names' : ["hello"]})
+        self.cmp.compare_ignore_order.find({'names' : ["world"]})
+        self.cmp.compare_ignore_order.find({'names' : ["hello", "world"]})
+        self.cmp.compare_ignore_order.find({'names' : ["world", "hello"]})
+
 
     def test__find_sets(self):
         single = 4
