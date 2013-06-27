@@ -22,6 +22,11 @@ __all__ = ['Connection', 'Database', 'Collection', 'ObjectId']
 
 RE_TYPE = type(re.compile(''))
 
+def _iterable_collection(o):
+    return isinstance(o, Iterable) and not isinstance(o, str)
+def _item(o):
+    return isinstance(o, str) or not isinstance(o, Iterable)
+
 def _force_list(v):
     return v if isinstance(v, (list, tuple)) else [v]
 
@@ -247,15 +252,17 @@ class Collection(object):
                 is_match = search.match(doc_val) is not None
             elif key in LOGICAL_OPERATOR_MAP:
                 is_match = LOGICAL_OPERATOR_MAP[key] (self, document, search)
-            elif isinstance(doc_val, Iterable) and not isinstance(search, Iterable):
+            elif isinstance(doc_val, str): 
+                is_match = doc_val == search
+            elif isinstance(doc_val, Iterable) and _item(search):
                 is_match = search in doc_val
             else:
                 is_match = doc_val == search
 
             if not is_match:
                 return False
-
         return True
+    
     def save(self, to_save, manipulate = True, safe = False, **kwargs):
         if not isinstance(to_save, dict):
             raise TypeError("cannot save object of type %s" % type(to_save))
