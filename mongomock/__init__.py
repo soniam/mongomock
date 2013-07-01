@@ -122,6 +122,7 @@ class Collection(object):
     def __init__(self, db):
         super(Collection, self).__init__()
         self._documents = {}
+        self._unique_index = []
     def insert(self, data, w='ignored'):
         if isinstance(data, list):
             return [self._insert(element) for element in data]
@@ -131,8 +132,14 @@ class Collection(object):
             data['_id'] = ObjectId()
         object_id = data['_id']
         assert object_id not in self._documents
+        if self._unique_index:
+            found = self.find(self._copy_only_fields(data, self._unique_index))
+            assert found.count() == 0
         self._documents[object_id] = copy.deepcopy(data)
         return object_id
+    def drop(self):
+        self._documents = {}
+        self._unique_index = []
     def update(self, spec, document, upsert = False, manipulate = False,
                safe = False, multi = False, _check_keys = False, **kwargs):
         """Updates document(s) in the collection."""
@@ -289,7 +296,12 @@ class Collection(object):
     def count(self):
         return len(self._documents)
     def ensure_index(self, key_or_list, cache_for=300, **kwargs):
-        pass  # TODO: Actually mock out unique indexes
+        # support unique, ignores the rest
+        if kwargs.get("unique", None):
+            if isinstance(key_or_list, list):
+                self._unique_index += key_or_list
+            else:
+                self._unique_index.append(key_or_list)
 
 
 class Cursor(object):

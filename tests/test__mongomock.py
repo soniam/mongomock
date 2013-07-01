@@ -101,6 +101,7 @@ class CollectionTest(CollectionComparisonTest):
         self.cmp.compare.count()
         self.cmp.do.insert({"a" : 1})
         self.cmp.compare.count()
+        
     def test__find_by_attributes(self):
         id1 = self.cmp.do.insert({"name" : "new"})
         self.cmp.do.insert({"name" : "another new"})
@@ -303,6 +304,23 @@ class DistinctTest(CollectionComparisonTest):
         self.cmp.compare(_DISTINCT('key1'), _SORT_LIST()).find()
         self.cmp.compare(_DISTINCT('key2'), _SORT_LIST()).find()
         self.cmp.compare(_DISTINCT('key2'), _SORT_LIST()).find({'key1': {'$gte': 'a', '$lt': 'b'}})
+
+class UniqueIndexTest(CollectionComparisonTest):
+    def setUp(self):
+        super(UniqueIndexTest, self).setUp()
+        self.cmp.do.drop()
+        self.cmp.do.ensure_index("name", unique=True)
+    def tearDown(self):
+        self.cmp.do.drop()
+    def test__unique_index(self):
+        self.cmp.do.insert({"name" : "hello", "color" : "blue"})
+        self.cmp.compare_ignore_order.find()
+        self.cmp.do.insert({"name" : "world", "color" : "blue"})
+        self.cmp.compare_ignore_order.find()
+        
+        with self.assertRaises(Exception):
+            self.cmp.do.insert({"name" : "hello", "color" : "green"})
+        self.cmp.compare_ignore_order.find()
 
 class InsertedDocumentTest(TestCase):
     def setUp(self):

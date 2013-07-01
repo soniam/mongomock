@@ -75,7 +75,7 @@ def _format_diff_message(a_name, b_name, diff):
     for (path, a_value, b_value) in diff:
         a_path = [a_name] + path
         b_path = [b_name] + path
-        msg += "\n\t{} != {} ({} != {})".format(
+        msg += "\n\t{0} != {1} ({2} != {3})".format(
             ".".join(map(str, a_path)), ".".join(map(str, b_path)), a_value, b_value
         )
     return msg
