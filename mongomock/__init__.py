@@ -27,6 +27,13 @@ def _iterable_collection(o):
 def _item(o):
     return isinstance(o, str) or not isinstance(o, Iterable)
 
+def _re_match(dv, sv):
+    resv = re.compile(sv)
+    if _iterable_collection(dv):
+        return any(resv.match(v) for v in dv)
+    else:
+        return resv.match(dv)
+
 def _force_list(v):
     return v if isinstance(v, (list, tuple)) else [v]
 
@@ -52,7 +59,7 @@ OPERATOR_MAP = {'$ne': operator.ne,
                 '$in':lambda dv, sv: any(x in sv for x in _force_list(dv)),
                 '$nin':lambda dv, sv: all(x not in sv for x in _force_list(dv)),
                 '$exists':lambda dv, sv: bool(sv) == (dv is not NOTHING),
-                '$regex':lambda dv, sv: re.compile(sv).match(dv),
+                '$regex':lambda dv, sv: _re_match(dv, sv),
                 '$where':lambda db, sv: True  # ignore this complex filter
                 }
 

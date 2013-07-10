@@ -149,6 +149,18 @@ class CollectionTest(CollectionComparisonTest):
         regex = re.compile('bob|notsam')
         self.cmp.compare_ignore_order.find({"name" : regex})
 
+    def test__collection_find_by_regex(self):
+        """Test searching in collection with regular expression objects."""
+        hello = {'name': ['hello', 'world']}
+        fubar = {'name': ['foo', 'bar']}
+        self.cmp.do.insert(hello)
+        self.cmp.do.insert(fubar)
+        self.cmp.compare_ignore_order.find()
+        self.cmp.compare_ignore_order.find({"name" : {"$regex" : "^hell"}})        
+        self.cmp.compare_ignore_order.find({"name" : {"$regex" : "world"}})        
+        self.cmp.compare_ignore_order.find({"name" : {"$regex" : "hell$"}})        
+        self.cmp.compare_ignore_order.find({"name" : {"$regex" : "bar|world"}})        
+
     def test__find_notequal(self):
         """Test searching with operators other than equality."""
         bob = {'_id': 1, 'name': 'bob'}
