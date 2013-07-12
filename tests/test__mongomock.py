@@ -321,10 +321,10 @@ class UniqueIndexTest(CollectionComparisonTest):
     def setUp(self):
         super(UniqueIndexTest, self).setUp()
         self.cmp.do.drop()
-        self.cmp.do.ensure_index("name", unique=True)
     def tearDown(self):
         self.cmp.do.drop()
-    def test__unique_index(self):
+    def test__unique_single_key_index(self):
+        self.cmp.do.ensure_index("name", unique=True)
         self.cmp.do.insert({"name" : "hello", "color" : "blue"})
         self.cmp.compare_ignore_order.find()
         self.cmp.do.insert({"name" : "world", "color" : "blue"})
@@ -332,6 +332,18 @@ class UniqueIndexTest(CollectionComparisonTest):
         
         with self.assertRaises(Exception):
             self.cmp.do.insert({"name" : "hello", "color" : "green"})
+        self.cmp.compare_ignore_order.find()
+    def test__unique_composit_index(self):
+        self.cmp.do.ensure_index([('name', 1), ('color', 1)], unique=True)
+        self.cmp.do.insert({"name" : "hello", "color" : "blue"})
+        self.cmp.compare_ignore_order.find()
+        self.cmp.do.insert({"name" : "world", "color" : "blue"})
+        self.cmp.compare_ignore_order.find()
+        self.cmp.do.insert({"name" : "hello", "color" : "green"})
+        self.cmp.compare_ignore_order.find()
+
+        with self.assertRaises(Exception):
+            self.cmp.do.insert({"name" : "hello", "color" : "blue"})
         self.cmp.compare_ignore_order.find()
 
 class InsertedDocumentTest(TestCase):

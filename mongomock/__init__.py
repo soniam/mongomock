@@ -302,11 +302,11 @@ class Collection(object):
 
     def count(self):
         return len(self._documents)
-    def ensure_index(self, key_or_list, cache_for=300, **kwargs):
+    def ensure_index(self, key_or_list, cache_for=300, unique=False, **kwargs):
         # support unique, ignores the rest
-        if kwargs.get("unique", None):
+        if unique:
             if isinstance(key_or_list, list):
-                self._unique_index += key_or_list
+                self._unique_index += [k[0] for k in key_or_list]
             else:
                 self._unique_index.append(key_or_list)
 
