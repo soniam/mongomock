@@ -140,8 +140,9 @@ class Collection(object):
         object_id = data['_id']
         assert object_id not in self._documents
         if self._unique_index:
-            found = self.find(self._copy_only_fields(data, self._unique_index))
-            assert found.count() == 0
+            fields = self._copy_only_fields(data, self._unique_index, return_all_fields=True)
+            found = self.find(fields)
+            assert found.count() == 0, "Trying to insert duplicate index: %r" % fields
         self._documents[object_id] = copy.deepcopy(data)
         return object_id
     def drop(self):
@@ -213,7 +214,7 @@ class Collection(object):
                 spec = filter
         dataset = (self._copy_only_fields(document, fields) for document in self._iter_documents(spec))
         return Cursor(dataset)
-    def _copy_only_fields(self, doc, fields):
+    def _copy_only_fields(self, doc, fields, return_all_fields=False):
         """Copy only the specified fields."""
         if fields is None:
             return copy.deepcopy(doc)
@@ -221,8 +222,8 @@ class Collection(object):
         if not fields:
             fields = ["_id"]
         for key in fields:
-            if key in doc:
-                doc_copy[key] = doc[key]
+            if key in doc or return_all_fields:
+                doc_copy[key] = doc.get(key,None)
         return doc_copy
 
     def _iter_documents(self, filter = None):
@@ -270,6 +271,8 @@ class Collection(object):
                 is_match = doc_val == search
             elif isinstance(doc_val, Iterable) and _item(search):
                 is_match = search in doc_val
+            elif doc_val == NOTHING:
+                is_match = search == None
             else:
                 is_match = doc_val == search
 
@@ -306,7 +309,7 @@ class Collection(object):
         # support unique, ignores the rest
         if unique:
             if isinstance(key_or_list, list):
-                self._unique_index += [k[0] for k in key_or_list]
+                self._unique_index += [k for k,d in key_or_list]
             else:
                 self._unique_index.append(key_or_list)
 

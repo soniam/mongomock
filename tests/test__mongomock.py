@@ -195,6 +195,15 @@ class CollectionTest(CollectionComparisonTest):
         self.cmp.compare_ignore_order.find({'names' : ["hello", "world"]})
         self.cmp.compare_ignore_order.find({'names' : ["world", "hello"]})
 
+    def test__find_missing_attributes(self):
+        self.cmp.do.insert({"name" : "hello"})
+        self.cmp.compare_ignore_order.find({'color' : 'blue'})
+        self.cmp.compare_ignore_order.find({'color' : None})        
+        self.cmp.compare_ignore_order.find({'color' : None}, {'color' : 1})
+        self.cmp.do.insert({"name" : "world", "color" : "blue"})
+        self.cmp.compare_ignore_order.find({'color' : 'blue'})
+        self.cmp.compare_ignore_order.find({'color' : None})        
+        self.cmp.compare_ignore_order.find({'color' : None, 'name' : None})
 
     def test__find_sets(self):
         single = 4
@@ -323,6 +332,7 @@ class UniqueIndexTest(CollectionComparisonTest):
         self.cmp.do.drop()
     def tearDown(self):
         self.cmp.do.drop()
+    
     def test__unique_single_key_index(self):
         self.cmp.do.ensure_index("name", unique=True)
         self.cmp.do.insert({"name" : "hello", "color" : "blue"})
@@ -333,18 +343,23 @@ class UniqueIndexTest(CollectionComparisonTest):
         with self.assertRaises(Exception):
             self.cmp.do.insert({"name" : "hello", "color" : "green"})
         self.cmp.compare_ignore_order.find()
-    def test__unique_composit_index(self):
-        self.cmp.do.ensure_index([('name', 1), ('color', 1)], unique=True)
+
+    def test__unique_compound_index(self):
+        self.cmp.do.ensure_index([("name", 1), ("color", 1)], unique=True)
         self.cmp.do.insert({"name" : "hello", "color" : "blue"})
         self.cmp.compare_ignore_order.find()
         self.cmp.do.insert({"name" : "world", "color" : "blue"})
         self.cmp.compare_ignore_order.find()
-        self.cmp.do.insert({"name" : "hello", "color" : "green"})
-        self.cmp.compare_ignore_order.find()
-
         with self.assertRaises(Exception):
             self.cmp.do.insert({"name" : "hello", "color" : "blue"})
         self.cmp.compare_ignore_order.find()
+        self.cmp.do.insert({"name": "fubar"})
+        self.cmp.compare_ignore_order.find({"color" : None})
+
+        self.cmp.do.insert({"a": 1})
+        with self.assertRaises(Exception):
+            self.cmp.do.insert({"b" : 2})
+        self.cmp.compare_ignore_order.find({"color" : None, "name" : None})
 
 class InsertedDocumentTest(TestCase):
     def setUp(self):
